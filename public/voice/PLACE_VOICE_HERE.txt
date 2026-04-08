@@ -1,0 +1,9 @@
+Optional voice-over (recommended for the hero intro).
+
+Add your recorded voice files here:
+- roohi-intro.mp3  (example: "My Roo…hi…")
+- roohi-mid.mp3    (example: "As…wi…ya Nus…rath…")
+- roohi-end.mp3    (example: "My Roohi… Aswiya Nusrath…")
+
+If you don’t add these files, the site will fall back to the browser’s built-in
+speech voice.
