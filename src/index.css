@@ -69,10 +69,11 @@ p {
   --mB: max(22px, env(safe-area-inset-bottom));
   --mL: max(18px, env(safe-area-inset-left));
   --shellPad: clamp(18px, 5vw, 34px);
+  --hudClear: 78px;
 
   width: min(860px, calc(100% - var(--mL) - var(--mR)));
   border-radius: 22px;
-  margin: var(--mT) var(--mR) var(--mB) var(--mL);
+  margin: var(--mT) var(--mR) calc(var(--mB) + var(--hudClear)) var(--mL);
   padding: var(--shellPad);
   background: linear-gradient(
     180deg,
@@ -130,6 +131,7 @@ p {
     --mB: max(12px, env(safe-area-inset-bottom));
     --mL: max(14px, env(safe-area-inset-left));
     --shellPad: 16px;
+    --hudClear: 68px;
   }
 
   .sceneTitle {
@@ -159,6 +161,7 @@ p {
     --mB: max(10px, env(safe-area-inset-bottom));
     --mL: max(12px, env(safe-area-inset-left));
     --shellPad: 14px;
+    --hudClear: 60px;
   }
 
   .sceneTitle {
