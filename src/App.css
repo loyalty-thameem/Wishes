@@ -917,6 +917,14 @@
   margin-top: 14px;
 }
 
+.gameHintLine {
+  display: block;
+}
+
+.gameHintLine + .gameHintLine {
+  margin-top: 8px;
+}
+
 /* ---- Scene 7: Proposal ---- */
 .proposalPanel {
   text-align: center;
