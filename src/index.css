@@ -1,0 +1,183 @@
+:root {
+  --bg0: #05070c;
+  --bg1: #070b14;
+  --text: rgba(247, 246, 242, 0.92);
+  --muted: rgba(247, 246, 242, 0.72);
+  --gold: #d8b46b;
+  --gold2: #f0d08a;
+  --glass: rgba(255, 255, 255, 0.06);
+  --glassBorder: rgba(255, 255, 255, 0.18);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+  font: 16px/155% var(--font-sans);
+  color: var(--text);
+  background: radial-gradient(
+      1200px 900px at 65% 15%,
+      rgba(216, 180, 107, 0.08),
+      transparent 55%
+    ),
+    radial-gradient(
+      900px 700px at 25% 85%,
+      rgba(240, 208, 138, 0.07),
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--bg1), var(--bg0) 55%, var(--bg0));
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+.sceneShell {
+  --mT: max(18px, env(safe-area-inset-top));
+  --mR: max(18px, env(safe-area-inset-right));
+  --mB: max(22px, env(safe-area-inset-bottom));
+  --mL: max(18px, env(safe-area-inset-left));
+  --shellPad: clamp(18px, 5vw, 34px);
+
+  width: min(860px, calc(100% - var(--mL) - var(--mR)));
+  border-radius: 22px;
+  margin: var(--mT) var(--mR) var(--mB) var(--mL);
+  padding: var(--shellPad);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 255, 255, 0.05)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  transform: translate3d(
+    calc(var(--mx, 0) * 8px),
+    calc(var(--my, 0) * 6px),
+    0
+  );
+  transition: transform 260ms ease;
+}
+
+.sceneTitle {
+  font-size: clamp(34px, 7vw, 62px);
+  line-height: 1.05;
+  color: rgba(247, 246, 242, 0.96);
+  text-shadow: 0 0 22px rgba(216, 180, 107, 0.18);
+}
+
+.sceneSubtitle {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: clamp(14px, 3.5vw, 18px);
+}
+
+.sceneKicker {
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(216, 180, 107, 0.86);
+  margin-bottom: 12px;
+}
+
+.sceneBody {
+  margin-top: 12px;
+  font-size: clamp(15px, 3.8vw, 18px);
+  color: rgba(247, 246, 242, 0.86);
+}
+
+.sceneFine {
+  margin-top: 14px;
+  font-size: 13px;
+  color: rgba(247, 246, 242, 0.62);
+}
+
+@media (max-height: 720px) {
+  .sceneShell {
+    --mT: max(12px, env(safe-area-inset-top));
+    --mR: max(14px, env(safe-area-inset-right));
+    --mB: max(12px, env(safe-area-inset-bottom));
+    --mL: max(14px, env(safe-area-inset-left));
+    --shellPad: 16px;
+  }
+
+  .sceneTitle {
+    font-size: clamp(28px, 6.2vw, 54px);
+  }
+
+  .sceneKicker {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .sceneBody {
+    margin-top: 10px;
+    font-size: clamp(14px, 3.6vw, 16px);
+  }
+
+  .sceneFine {
+    margin-top: 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-height: 520px) {
+  .sceneShell {
+    --mT: max(10px, env(safe-area-inset-top));
+    --mR: max(12px, env(safe-area-inset-right));
+    --mB: max(10px, env(safe-area-inset-bottom));
+    --mL: max(12px, env(safe-area-inset-left));
+    --shellPad: 14px;
+  }
+
+  .sceneTitle {
+    font-size: clamp(24px, 5.6vw, 42px);
+  }
+
+  .sceneKicker {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+  }
+
+  .sceneBody {
+    margin-top: 8px;
+    font-size: clamp(13px, 3.2vw, 15px);
+  }
+
+  .sceneFine {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+}
