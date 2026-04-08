@@ -11,7 +11,7 @@ export default function SceneDua({ active, playTypeTick }: SceneComponentProps) 
       "you are my dua beautifully accepted by Allah.",
       '',
       'May Allah bless you with good health,',
-      'strong imaan and always protect and guide you,',
+      'strong imaan, and always protect and guide you,',
       'filling your life with barakah and success',
       'in this dunya and akhirah...',
       'Aameen 🤍...',
