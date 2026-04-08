@@ -35,6 +35,13 @@ function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [soundOn, setSoundOn] = useState(false)
   const [sfxOn, setSfxOn] = useState(false)
+  const showControls = useMemo(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('controls') === '1'
+    } catch {
+      return false
+    }
+  }, [])
   const { index, direction, transitionMs, goTo } = useSceneNavigation(
     scenes.length,
     { locked: navLocked },
@@ -141,83 +148,85 @@ function App() {
       <HeartsOverlay hearts={hearts} />
       <audio ref={audioRef} src={nasheedSrc} loop preload="none" />
 
-      <div className="controls" role="group" aria-label="Controls">
-        <button
-          type="button"
-          className="ctrlBtn"
-          aria-pressed={soundOn}
-          aria-label="Toggle nasheed"
-          onClick={async () => {
-            const el = audioRef.current
-            if (!el) return
+      {showControls ? (
+        <div className="controls" role="group" aria-label="Controls">
+          <button
+            type="button"
+            className="ctrlBtn"
+            aria-pressed={soundOn}
+            aria-label="Toggle nasheed"
+            onClick={async () => {
+              const el = audioRef.current
+              if (!el) return
 
-            if (soundOn) {
-              el.pause()
-              el.currentTime = 0
-              setSoundOn(false)
-              return
-            }
+              if (soundOn) {
+                el.pause()
+                el.currentTime = 0
+                setSoundOn(false)
+                return
+              }
 
-            try {
-              await el.play()
-              setSoundOn(true)
-            } catch {
-              setSoundOn(false)
-            }
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            aria-hidden="true"
-            focusable="false"
+              try {
+                await el.play()
+                setSoundOn(true)
+              } catch {
+                setSoundOn(false)
+              }
+            }}
           >
-            <path
-              d="M11.5 15V4.7l9-1.9v10.7"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-            <path
-              d="M9 19.2a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"
-              fill="currentColor"
-              opacity="0.9"
-            />
-            <path
-              d="M20.5 19.2a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"
-              fill="currentColor"
-              opacity="0.9"
-            />
-          </svg>
-        </button>
-        <button
-          type="button"
-          className="ctrlBtn"
-          aria-pressed={sfxOn}
-          onClick={() => setSfxOn((v) => !v)}
-          aria-label="Toggle typing SFX"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            aria-hidden="true"
-            focusable="false"
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M11.5 15V4.7l9-1.9v10.7"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+              <path
+                d="M9 19.2a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"
+                fill="currentColor"
+                opacity="0.9"
+              />
+              <path
+                d="M20.5 19.2a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"
+                fill="currentColor"
+                opacity="0.9"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="ctrlBtn"
+            aria-pressed={sfxOn}
+            onClick={() => setSfxOn((v) => !v)}
+            aria-label="Toggle typing SFX"
           >
-            <path
-              d="M4 14v-4M7.5 17V7M11 15v-6M14.5 18V6M18 15v-6M21 14v-4"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </svg>
-        </button>
-      </div>
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M4 14v-4M7.5 17V7M11 15v-6M14.5 18V6M18 15v-6M21 14v-4"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+          </button>
+        </div>
+      ) : null}
       <SceneStage
         scenes={scenes}
         activeIndex={index}
