@@ -64,8 +64,8 @@ export default function SceneVideos({
 
     setNavConsumer((dir) => {
       const now = performance.now()
-      if (now - activatedAt < 360) return true
-      if (now - lastStepAt < 520) return true
+      if (now - activatedAt < 200) return true
+      if (now - lastStepAt < 460) return true
 
       if (dir > 0) {
         if (centerRef.current >= videos.length - 1) return false
