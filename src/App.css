@@ -932,6 +932,10 @@
 
 .proposalTitle {
   font-size: clamp(26px, 6.0vw, 48px);
+  line-height: 1.14;
+  max-width: 22ch;
+  margin-inline: auto;
+  text-wrap: balance;
 }
 
 .proposalSilhouette {
