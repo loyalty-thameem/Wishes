@@ -14,7 +14,7 @@ export default function SceneDua({ active, playTypeTick }: SceneComponentProps) 
       'strong imaan and always protect and guide you,',
       'filling your life with barakah and success',
       'in this dunya and akhirah...',
-      'Ameen 🤍...',
+      'Aameen 🤍...',
     ],
     [],
   )
