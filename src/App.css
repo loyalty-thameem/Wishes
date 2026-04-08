@@ -738,6 +738,9 @@
 }
 
 .videoPlaceholderLabel {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
   font-size: 12px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -747,6 +750,25 @@
   background: rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(10px);
   box-shadow: 0 0 0 1px rgba(216, 180, 107, 0.06) inset;
+}
+
+.videoPlaceholderSub {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 11px;
+  color: rgba(247, 246, 242, 0.68);
+}
+
+.videoPlaceholderCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: rgba(240, 208, 138, 0.92);
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(216, 180, 107, 0.22);
+  padding: 2px 8px;
+  border-radius: 999px;
 }
 
 .videoCardGlow {

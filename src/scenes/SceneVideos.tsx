@@ -13,6 +13,7 @@ export default function SceneVideos({
   setNavConsumer,
 }: SceneComponentProps) {
   const baseUrl = import.meta.env.BASE_URL
+  const fileName = (index: number) => `moment-${String(index + 1).padStart(2, '0')}.mp4`
   const videos = useMemo<VideoItem[]>(
     () => [
       {
@@ -40,6 +41,7 @@ export default function SceneVideos({
   const centerRef = useRef(center)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const previewRef = useRef<HTMLVideoElement | null>(null)
+  const [failed, setFailed] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
     centerRef.current = center
@@ -157,7 +159,7 @@ export default function SceneVideos({
                 aria-label={`${v.title}${isCenter ? ', tap to play' : ', tap to focus'}`}
               >
                 <div className="videoFrame" aria-hidden="true">
-                  {isCenter ? (
+                  {isCenter && !failed[i] ? (
                     <video
                       key={`${v.src}-center`}
                       ref={previewRef}
@@ -168,10 +170,21 @@ export default function SceneVideos({
                       loop
                       preload="metadata"
                       autoPlay
+                      onError={() => {
+                        setFailed((prev) => ({ ...prev, [i]: true }))
+                      }}
                     />
                   ) : (
                     <div className="videoPlaceholder">
-                      <span className="videoPlaceholderLabel">{v.title}</span>
+                      <span className="videoPlaceholderLabel">
+                        {v.title}
+                        <span className="videoPlaceholderSub">
+                          Add{' '}
+                          <code className="videoPlaceholderCode">
+                            {`public/videos/${fileName(i)}`}
+                          </code>
+                        </span>
+                      </span>
                     </div>
                   )}
                 </div>
