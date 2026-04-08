@@ -93,15 +93,36 @@ export default function HeroParticleText({
     const width = rect.width
     const height = rect.height
 
-    const fontSize = clamp(Math.min(width, height) * 0.14, 44, 92)
-    const spacing = fontSize * 0.06
     const baseY = height * 0.48
 
     const measureCtx = document.createElement('canvas').getContext('2d')
     if (!measureCtx) return
+
+    const targetWidth = width * 0.92
+    let fontSize = clamp(Math.min(width, height) * 0.14, 34, 92)
+    let spacingRatio = width < 420 ? 0.045 : 0.06
+
+    let widths: number[] = []
+    let totalWidth = 0
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const spacing = fontSize * spacingRatio
+      measureCtx.font = `700 ${fontSize}px ui-serif, Georgia, Cambria, serif`
+      widths = chars.map((c) => measureCtx.measureText(c).width)
+      totalWidth =
+        widths.reduce((sum, w) => sum + w, 0) + spacing * (chars.length - 1)
+
+      if (totalWidth <= targetWidth || fontSize <= 28) break
+
+      const scale = clamp(targetWidth / Math.max(1, totalWidth), 0.5, 1)
+      fontSize = Math.max(28, fontSize * scale)
+      spacingRatio = Math.max(0.036, spacingRatio * 0.97)
+    }
+
+    const spacing = fontSize * spacingRatio
     measureCtx.font = `700 ${fontSize}px ui-serif, Georgia, Cambria, serif`
-    const widths = chars.map((c) => measureCtx.measureText(c).width)
-    const totalWidth =
+    widths = chars.map((c) => measureCtx.measureText(c).width)
+    totalWidth =
       widths.reduce((sum, w) => sum + w, 0) + spacing * (chars.length - 1)
     const startX = (width - totalWidth) / 2
 
