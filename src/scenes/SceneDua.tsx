@@ -30,10 +30,11 @@ export default function SceneDua({ active, playTypeTick }: SceneComponentProps) 
           'strong imaan, and always protect and guide you,',
           'filling your life with barakah and success',
           'in this dunya and akhirah...',
+          'May Allah make your life beautiful with barakah..',
+          'your heart firm upon deen and your akhirah full of reward...',
           'Ameen 🤍...',
         ]}
       />
     </div>
   )
 }
-
