@@ -44,7 +44,7 @@ function App() {
   }, [])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [soundOn, setSoundOn] = useState(false)
-  const [sfxOn, setSfxOn] = useState(false)
+  const [sfxOn, setSfxOn] = useState(true)
   const showControls = useMemo(() => {
     try {
       return new URLSearchParams(window.location.search).get('controls') === '1'
@@ -56,7 +56,7 @@ function App() {
     scenes.length,
     { locked: navLocked, consume: consumeNav },
   )
-  const { playTypeTick } = useSfx(sfxOn)
+  const { playTypeTick, playNavigate, playTap } = useSfx(sfxOn)
   const nasheedSrc = `${import.meta.env.BASE_URL}nasheed.mp3`
 
   const requestNavLock = useCallback((locked: boolean) => {
@@ -117,12 +117,25 @@ function App() {
     }
   }, [])
 
+  const prevSceneRef = useRef(index)
+  useEffect(() => {
+    const prev = prevSceneRef.current
+    if (prev === index) return
+    prevSceneRef.current = index
+    playNavigate()
+  }, [index, playNavigate])
+
   return (
     <div
       ref={appRef}
       className="app"
       onPointerDown={(e) => {
         if (e.pointerType === 'mouse' && e.button !== 0) return
+
+        const targetEl = e.target as HTMLElement | null
+        const inHud = targetEl?.closest?.('.hud')
+        if (!inHud) playTap()
+
         if (e.pointerType === 'touch') {
           const now = performance.now()
           if (now - lastHapticAtRef.current > 240) {
