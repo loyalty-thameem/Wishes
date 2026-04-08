@@ -4,12 +4,7 @@ import type { SceneComponentProps } from '../components/SceneStage'
 type VideoItem = {
   title: string
   src: string
-}
-
-function withAutoplay(src: string) {
-  if (src.includes('autoplay=')) return src
-  const sep = src.includes('?') ? '&' : '?'
-  return `${src}${sep}autoplay=1`
+  poster?: string
 }
 
 export default function SceneVideos({
@@ -17,22 +12,26 @@ export default function SceneVideos({
   requestNavLock,
   setNavConsumer,
 }: SceneComponentProps) {
+  const baseUrl = import.meta.env.BASE_URL
   const videos = useMemo<VideoItem[]>(
     () => [
       {
         title: 'Moment 01',
-        src: 'https://drive.google.com/file/d/1_vX2vr1VywjFBbb_dVHSmbms7B54-qGV/preview',
+        src: `${baseUrl}videos/moment-01.mp4`,
+        poster: `${baseUrl}videos/posters/moment-01.jpg`,
       },
       {
         title: 'Moment 02',
-        src: 'https://drive.google.com/file/d/1JfNOUpfp2re6j11RmTBN1z0IksK5vrfd/preview',
+        src: `${baseUrl}videos/moment-02.mp4`,
+        poster: `${baseUrl}videos/posters/moment-02.jpg`,
       },
       {
         title: 'Moment 03',
-        src: 'https://drive.google.com/file/d/1kTigslBLit2sE3wjl3Ve-SmU97pMwS95/preview',
+        src: `${baseUrl}videos/moment-03.mp4`,
+        poster: `${baseUrl}videos/posters/moment-03.jpg`,
       },
     ],
-    [],
+    [baseUrl],
   )
   const count = videos.length
   const countLabel = `${count} ${count === 1 ? 'video' : 'videos'}`
@@ -40,6 +39,7 @@ export default function SceneVideos({
   const [center, setCenter] = useState(0)
   const centerRef = useRef(center)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const previewRef = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
     centerRef.current = center
@@ -55,6 +55,20 @@ export default function SceneVideos({
     centerRef.current = 0
     setCenter(0)
   }, [active])
+
+  useEffect(() => {
+    if (!active) return
+    if (openIndex !== null) return
+    const el = previewRef.current
+    if (!el) return
+    el.muted = true
+    el.play().catch(() => {})
+  }, [active, center, openIndex])
+
+  useEffect(() => {
+    if (openIndex === null) return
+    previewRef.current?.pause()
+  }, [openIndex])
 
   useEffect(() => {
     if (!active) return
@@ -144,14 +158,16 @@ export default function SceneVideos({
               >
                 <div className="videoFrame" aria-hidden="true">
                   {isCenter ? (
-                    <iframe
+                    <video
                       key={`${v.src}-center`}
-                      src={withAutoplay(v.src)}
-                      title={v.title}
-                      loading="eager"
-                      referrerPolicy="no-referrer"
-                      allow="autoplay; fullscreen; encrypted-media"
-                      allowFullScreen
+                      ref={previewRef}
+                      src={v.src}
+                      poster={v.poster}
+                      muted
+                      playsInline
+                      loop
+                      preload="metadata"
+                      autoPlay
                     />
                   ) : (
                     <div className="videoPlaceholder">
@@ -183,12 +199,14 @@ export default function SceneVideos({
             >
               Close
             </button>
-            <iframe
-              src={withAutoplay(videos[openIndex]?.src ?? '')}
-              title={videos[openIndex]?.title ?? 'Video'}
-              referrerPolicy="no-referrer"
-              allow="autoplay; fullscreen; encrypted-media"
-              allowFullScreen
+            <video
+              src={videos[openIndex]?.src ?? ''}
+              poster={videos[openIndex]?.poster}
+              controls
+              autoPlay
+              playsInline
+              preload="auto"
+              controlsList="nodownload"
             />
           </div>
         </div>

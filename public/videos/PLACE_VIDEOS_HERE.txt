@@ -1,0 +1,13 @@
+Put your 3 videos in this folder (GitHub Pages will serve them from here).
+
+Recommended filenames:
+- moment-01.mp4
+- moment-02.mp4
+- moment-03.mp4
+
+Optional (if you want posters/thumbnails):
+- posters/moment-01.jpg
+- posters/moment-02.jpg
+- posters/moment-03.jpg
+
+After adding/replacing files, push to GitHub and wait for Pages to redeploy.
