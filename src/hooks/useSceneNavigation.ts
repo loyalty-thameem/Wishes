@@ -6,6 +6,7 @@ export interface UseSceneNavigationOptions {
   initialIndex?: number
   locked?: boolean
   transitionMs?: number
+  consume?: (direction: SceneDirection) => boolean
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -23,6 +24,7 @@ export function useSceneNavigation(
 
   const transitionMs = prefersReducedMotion ? 1 : (options.transitionMs ?? 1100)
   const lockedRef = useRef(options.locked ?? false)
+  const consumeRef = useRef(options.consume)
   const lastNavAtRef = useRef(0)
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
@@ -36,6 +38,10 @@ export function useSceneNavigation(
   useEffect(() => {
     lockedRef.current = options.locked ?? false
   }, [options.locked])
+
+  useEffect(() => {
+    consumeRef.current = options.consume
+  }, [options.consume])
 
   useEffect(() => {
     indexRef.current = index
@@ -74,11 +80,13 @@ export function useSceneNavigation(
       const key = e.key
       if (key === 'ArrowDown' || key === 'PageDown' || key === ' ') {
         e.preventDefault()
+        if (consumeRef.current?.(1)) return
         next()
         return
       }
       if (key === 'ArrowUp' || key === 'PageUp') {
         e.preventDefault()
+        if (consumeRef.current?.(-1)) return
         prev()
         return
       }
@@ -107,7 +115,9 @@ export function useSceneNavigation(
       e.preventDefault()
       if (Math.abs(dy) < wheelThreshold) return
 
-      if (dy > 0) next()
+      const dir: SceneDirection = dy > 0 ? 1 : -1
+      if (consumeRef.current?.(dir)) return
+      if (dir > 0) next()
       else prev()
     }
 
@@ -151,7 +161,9 @@ export function useSceneNavigation(
       const dy = touch.clientY - start.y
       if (Math.abs(dy) < swipeThreshold) return
 
-      if (dy < 0) next()
+      const dir: SceneDirection = dy < 0 ? 1 : -1
+      if (consumeRef.current?.(dir)) return
+      if (dir > 0) next()
       else prev()
     }
 
@@ -167,4 +179,3 @@ export function useSceneNavigation(
 
   return { index, direction, transitionMs, goTo, next, prev }
 }
-

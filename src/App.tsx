@@ -32,6 +32,16 @@ function App() {
   )
 
   const [navLocked, setNavLocked] = useState(false)
+  const navConsumerRef = useRef<(((direction: 1 | -1) => boolean) | null)>(null)
+  const setNavConsumer = useCallback(
+    (consumer: ((direction: 1 | -1) => boolean) | null) => {
+      navConsumerRef.current = consumer
+    },
+    [],
+  )
+  const consumeNav = useCallback((direction: 1 | -1) => {
+    return navConsumerRef.current?.(direction) ?? false
+  }, [])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [soundOn, setSoundOn] = useState(false)
   const [sfxOn, setSfxOn] = useState(false)
@@ -44,7 +54,7 @@ function App() {
   }, [])
   const { index, direction, transitionMs, goTo } = useSceneNavigation(
     scenes.length,
-    { locked: navLocked },
+    { locked: navLocked, consume: consumeNav },
   )
   const { playTypeTick } = useSfx(sfxOn)
   const nasheedSrc = `${import.meta.env.BASE_URL}nasheed.mp3`
@@ -233,6 +243,7 @@ function App() {
         direction={direction}
         transitionMs={transitionMs}
         requestNavLock={requestNavLock}
+        setNavConsumer={setNavConsumer}
         spawnHearts={spawnHearts}
         playTypeTick={playTypeTick}
       />

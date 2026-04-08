@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 
 export interface SceneSharedProps {
   requestNavLock: (locked: boolean) => void
+  setNavConsumer: (
+    consumer: ((direction: 1 | -1) => boolean) | null,
+  ) => void
   spawnHearts: (x: number, y: number, count?: number) => void
   playTypeTick: () => void
 }
@@ -29,6 +32,7 @@ export default function SceneStage({
   direction,
   transitionMs,
   requestNavLock,
+  setNavConsumer,
   spawnHearts,
   playTypeTick,
 }: SceneStageProps) {
@@ -66,6 +70,7 @@ export default function SceneStage({
           <Prev
             active={false}
             requestNavLock={requestNavLock}
+            setNavConsumer={setNavConsumer}
             spawnHearts={spawnHearts}
             playTypeTick={playTypeTick}
           />
@@ -83,6 +88,7 @@ export default function SceneStage({
           <Current
             active={true}
             requestNavLock={requestNavLock}
+            setNavConsumer={setNavConsumer}
             spawnHearts={spawnHearts}
             playTypeTick={playTypeTick}
           />

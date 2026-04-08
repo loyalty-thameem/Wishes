@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SceneComponentProps } from '../components/SceneStage'
 
 type VideoItem = {
@@ -6,7 +6,17 @@ type VideoItem = {
   src: string
 }
 
-export default function SceneVideos({ active, requestNavLock }: SceneComponentProps) {
+function withAutoplay(src: string) {
+  if (src.includes('autoplay=')) return src
+  const sep = src.includes('?') ? '&' : '?'
+  return `${src}${sep}autoplay=1`
+}
+
+export default function SceneVideos({
+  active,
+  requestNavLock,
+  setNavConsumer,
+}: SceneComponentProps) {
   const videos = useMemo<VideoItem[]>(
     () => [
       {
@@ -27,13 +37,59 @@ export default function SceneVideos({ active, requestNavLock }: SceneComponentPr
   const count = videos.length
   const countLabel = `${count} ${count === 1 ? 'video' : 'videos'}`
 
-  const [center, setCenter] = useState(1)
+  const [center, setCenter] = useState(0)
+  const centerRef = useRef(center)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    centerRef.current = center
+  }, [center])
 
   useEffect(() => {
     requestNavLock(openIndex !== null)
     return () => requestNavLock(false)
   }, [openIndex, requestNavLock])
+
+  useEffect(() => {
+    if (!active) return
+    centerRef.current = 0
+    setCenter(0)
+  }, [active])
+
+  useEffect(() => {
+    if (!active) return
+
+    const activatedAt = performance.now()
+    let lastStepAt = 0
+
+    setNavConsumer((dir) => {
+      const now = performance.now()
+      if (now - activatedAt < 360) return true
+      if (now - lastStepAt < 520) return true
+
+      if (dir > 0) {
+        if (centerRef.current >= videos.length - 1) return false
+        lastStepAt = now
+        setCenter((c) => {
+          const next = Math.min(videos.length - 1, c + 1)
+          centerRef.current = next
+          return next
+        })
+        return true
+      }
+
+      if (centerRef.current <= 0) return false
+      lastStepAt = now
+      setCenter((c) => {
+        const next = Math.max(0, c - 1)
+        centerRef.current = next
+        return next
+      })
+      return true
+    })
+
+    return () => setNavConsumer(null)
+  }, [active, setNavConsumer, videos.length])
 
   useEffect(() => {
     if (!active) setOpenIndex(null)
@@ -54,7 +110,7 @@ export default function SceneVideos({ active, requestNavLock }: SceneComponentPr
       <div className="sceneShell videosPanel">
         <h2 className="sceneTitle videosTitle">Moments I want to keep forever 🤍</h2>
         <p className="sceneFine videosFine">
-          {countLabel} • Tap a card to bring it forward. Tap again to play.
+          {countLabel} • Scroll to switch moments. Tap the center card for full-screen.
         </p>
 
         <div
@@ -87,14 +143,21 @@ export default function SceneVideos({ active, requestNavLock }: SceneComponentPr
                 aria-label={`${v.title}${isCenter ? ', tap to play' : ', tap to focus'}`}
               >
                 <div className="videoFrame" aria-hidden="true">
-                  <iframe
-                    src={v.src}
-                    title={v.title}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    allow="autoplay; fullscreen; encrypted-media"
-                    allowFullScreen
-                  />
+                  {isCenter ? (
+                    <iframe
+                      key={`${v.src}-center`}
+                      src={withAutoplay(v.src)}
+                      title={v.title}
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      allow="autoplay; fullscreen; encrypted-media"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="videoPlaceholder">
+                      <span className="videoPlaceholderLabel">{v.title}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="videoCardGlow" aria-hidden="true" />
               </button>
@@ -121,7 +184,7 @@ export default function SceneVideos({ active, requestNavLock }: SceneComponentPr
               Close
             </button>
             <iframe
-              src={videos[openIndex]?.src}
+              src={withAutoplay(videos[openIndex]?.src ?? '')}
               title={videos[openIndex]?.title ?? 'Video'}
               referrerPolicy="no-referrer"
               allow="autoplay; fullscreen; encrypted-media"
