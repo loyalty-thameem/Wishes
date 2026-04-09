@@ -257,6 +257,7 @@ function App() {
         transitionMs={transitionMs}
         requestNavLock={requestNavLock}
         setNavConsumer={setNavConsumer}
+        goTo={goTo}
         spawnHearts={spawnHearts}
         playTypeTick={playTypeTick}
       />
