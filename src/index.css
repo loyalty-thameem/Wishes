@@ -25,6 +25,7 @@
       transparent 60%
     ),
     linear-gradient(180deg, var(--bg1), var(--bg0) 55%, var(--bg0));
+  transition: background 1200ms ease;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

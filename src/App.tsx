@@ -67,6 +67,44 @@ function App() {
     volume: BACKGROUND_AUDIO_VOLUME,
   })
 
+  const backgroundThemes = useMemo(
+    () => [
+      { bg0: '#05070c', bg1: '#070b14' },
+      { bg0: '#070312', bg1: '#120823' },
+      { bg0: '#031115', bg1: '#062126' },
+      { bg0: '#120308', bg1: '#2a0814' },
+      { bg0: '#040f07', bg1: '#0a1c10' },
+    ],
+    [],
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const root = document.documentElement
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+
+    const applyTheme = (theme: { bg0: string; bg1: string }) => {
+      root.style.setProperty('--bg0', theme.bg0)
+      root.style.setProperty('--bg1', theme.bg1)
+      if (meta) meta.content = theme.bg0
+    }
+
+    applyTheme(backgroundThemes[0] ?? { bg0: '#05070c', bg1: '#070b14' })
+
+    const reduceMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
+    if (reduceMotion) return
+
+    let idx = 0
+    const timer = window.setInterval(() => {
+      idx = (idx + 1) % backgroundThemes.length
+      const theme = backgroundThemes[idx]
+      if (theme) applyTheme(theme)
+    }, 5000)
+
+    return () => window.clearInterval(timer)
+  }, [backgroundThemes])
+
   const requestNavLock = useCallback((locked: boolean) => {
     setNavLocked(locked)
   }, [])
