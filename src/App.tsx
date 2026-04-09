@@ -263,6 +263,30 @@ function App() {
 
       <div className="hud" aria-hidden="false">
         <div className="hudCard" role="navigation" aria-label="Scenes">
+          <button
+            type="button"
+            className="navBtn"
+            onClick={() => goTo(index - 1)}
+            disabled={index === 0}
+            aria-label="Previous scene"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M6 14.2 12 8.2l6 6"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+          </button>
           <span className="hint">Scroll</span>
           <div className="dots" aria-label="Scene progress">
             {scenes.map((scene, i) => (
@@ -280,6 +304,30 @@ function App() {
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            className="navBtn"
+            onClick={() => goTo(index + 1)}
+            disabled={index === scenes.length - 1}
+            aria-label="Next scene"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M6 9.8 12 15.8l6-6"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

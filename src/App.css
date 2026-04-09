@@ -206,6 +206,41 @@
   box-shadow: 0 0 0 1px rgba(216, 180, 107, 0.06) inset;
 }
 
+.navBtn {
+  all: unset;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: rgba(247, 246, 242, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 200ms ease,
+    opacity 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.navBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(216, 180, 107, 0.28);
+}
+
+.navBtn:focus-visible {
+  outline: 2px solid rgba(216, 180, 107, 0.9);
+  outline-offset: 3px;
+}
+
+.navBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .dots {
   display: flex;
   gap: 8px;
