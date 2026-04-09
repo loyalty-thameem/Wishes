@@ -270,14 +270,6 @@
   border-radius: 999px;
 }
 
-.hint {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(247, 246, 242, 0.68);
-  user-select: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .scene--enter,
   .scene--exit {

@@ -1,0 +1,6 @@
+Add your background audio here:
+
+- File name: background.mp3
+- Path: public/background.mp3
+
+The app will autoplay it (when browser allows), then restart it once when the user reaches the final scene.

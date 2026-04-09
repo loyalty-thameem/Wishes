@@ -18,7 +18,7 @@ This repo includes a GitHub Actions workflow at `.github/workflows/deploy.yml`.
 Note: `vite.config.ts` uses `base: './'` so it works on Pages for any repo name/subpath.
 
 ## Optional
-- Add `public/nasheed.mp3` to enable the nasheed toggle.
+- Add `public/background.mp3` to enable background audio autoplay + replay on the final scene.
 
 ---
 

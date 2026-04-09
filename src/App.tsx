@@ -4,6 +4,11 @@ import type { HeartItem } from './components/HeartsOverlay'
 import ParticlesBackground from './components/ParticlesBackground'
 import SceneStage from './components/SceneStage'
 import type { SceneDef } from './components/SceneStage'
+import {
+  BACKGROUND_AUDIO_SRC,
+  BACKGROUND_AUDIO_VOLUME,
+} from './audio/backgroundAudio'
+import { useBackgroundAudio } from './hooks/useBackgroundAudio'
 import { useSceneNavigation } from './hooks/useSceneNavigation'
 import { useSfx } from './hooks/useSfx'
 import SceneClosing from './scenes/SceneClosing'
@@ -42,8 +47,6 @@ function App() {
   const consumeNav = useCallback((direction: 1 | -1) => {
     return navConsumerRef.current?.(direction) ?? false
   }, [])
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [soundOn, setSoundOn] = useState(false)
   const [sfxOn, setSfxOn] = useState(true)
   const showControls = useMemo(() => {
     try {
@@ -57,7 +60,12 @@ function App() {
     { locked: navLocked, consume: consumeNav },
   )
   const { playTypeTick, playNavigate, playTap } = useSfx(sfxOn)
-  const nasheedSrc = `${import.meta.env.BASE_URL}nasheed.mp3`
+
+  const { audioRef, state: bgAudio, playFromStart, stop } = useBackgroundAudio({
+    src: BACKGROUND_AUDIO_SRC,
+    autoplay: true,
+    volume: BACKGROUND_AUDIO_VOLUME,
+  })
 
   const requestNavLock = useCallback((locked: boolean) => {
     setNavLocked(locked)
@@ -125,6 +133,18 @@ function App() {
     playNavigate()
   }, [index, playNavigate])
 
+  const replayedAtEndRef = useRef(false)
+  useEffect(() => {
+    if (index === 0) replayedAtEndRef.current = false
+
+    const lastIndex = scenes.length - 1
+    if (index !== lastIndex) return
+    if (replayedAtEndRef.current) return
+
+    replayedAtEndRef.current = true
+    void playFromStart()
+  }, [index, playFromStart, scenes.length])
+
   return (
     <div
       ref={appRef}
@@ -169,32 +189,18 @@ function App() {
     >
       <ParticlesBackground />
       <HeartsOverlay hearts={hearts} />
-      <audio ref={audioRef} src={nasheedSrc} loop preload="none" />
+      <audio ref={audioRef} src={BACKGROUND_AUDIO_SRC} preload="auto" />
 
       {showControls ? (
         <div className="controls" role="group" aria-label="Controls">
           <button
             type="button"
             className="ctrlBtn"
-            aria-pressed={soundOn}
-            aria-label="Toggle nasheed"
-            onClick={async () => {
-              const el = audioRef.current
-              if (!el) return
-
-              if (soundOn) {
-                el.pause()
-                el.currentTime = 0
-                setSoundOn(false)
-                return
-              }
-
-              try {
-                await el.play()
-                setSoundOn(true)
-              } catch {
-                setSoundOn(false)
-              }
+            aria-pressed={bgAudio.status === 'playing'}
+            aria-label="Toggle background audio"
+            onClick={() => {
+              if (bgAudio.status === 'playing') stop()
+              else void playFromStart()
             }}
           >
             <svg
@@ -288,7 +294,6 @@ function App() {
               />
             </svg>
           </button>
-          <span className="hint">Scroll</span>
           <div className="dots" aria-label="Scene progress">
             {scenes.map((scene, i) => (
               <button
