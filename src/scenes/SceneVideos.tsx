@@ -14,6 +14,19 @@ export default function SceneVideos({
 }: SceneComponentProps) {
   const baseUrl = import.meta.env.BASE_URL
   const fileName = (index: number) => `moment-${String(index + 1).padStart(2, '0')}.mp4`
+
+  const ambience = useMemo(
+    () => [
+      { emoji: '😄', x: 14, y: 74, delay: 0, size: 18, dur: 7200 },
+      { emoji: '🤭', x: 78, y: 76, delay: 600, size: 18, dur: 7600 },
+      { emoji: '😂', x: 26, y: 86, delay: 1200, size: 20, dur: 8400 },
+      { emoji: '😆', x: 68, y: 88, delay: 1600, size: 20, dur: 8800 },
+      { emoji: '🤣', x: 50, y: 82, delay: 2200, size: 22, dur: 9400 },
+      { emoji: '✨', x: 10, y: 92, delay: 900, size: 18, dur: 9800 },
+      { emoji: '🤍', x: 86, y: 92, delay: 1400, size: 18, dur: 10200 },
+    ],
+    [],
+  )
   const videos = useMemo<VideoItem[]>(
     () => [
       {
@@ -123,6 +136,24 @@ export default function SceneVideos({
 
   return (
     <div className="videosScene" data-active={active ? 'true' : 'false'}>
+      <div className="videosEmojiFloor" aria-hidden="true">
+        {ambience.map((item, i) => (
+          <span
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${item.emoji}-${i}`}
+            className="videosEmoji"
+            style={{
+              ['--x' as never]: `${item.x}%`,
+              ['--y' as never]: `${item.y}%`,
+              ['--delay' as never]: `${item.delay}ms`,
+              ['--size' as never]: `${item.size}px`,
+              ['--dur' as never]: `${item.dur}ms`,
+            }}
+          >
+            {item.emoji}
+          </span>
+        ))}
+      </div>
       <div className="sceneShell videosPanel">
         <h2 className="sceneTitle videosTitle">Moments I want to keep forever 🤍</h2>
         <p className="sceneFine videosFine">
