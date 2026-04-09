@@ -6,6 +6,7 @@ export interface SceneSharedProps {
   setNavConsumer: (
     consumer: ((direction: 1 | -1) => boolean) | null,
   ) => void
+  requestAudioFocus: (focused: boolean) => void
   goTo: (index: number) => void
   spawnHearts: (x: number, y: number, count?: number) => void
   playTypeTick: () => void
@@ -34,6 +35,7 @@ export default function SceneStage({
   transitionMs,
   requestNavLock,
   setNavConsumer,
+  requestAudioFocus,
   goTo,
   spawnHearts,
   playTypeTick,
@@ -73,6 +75,7 @@ export default function SceneStage({
             active={false}
             requestNavLock={requestNavLock}
             setNavConsumer={setNavConsumer}
+            requestAudioFocus={requestAudioFocus}
             goTo={goTo}
             spawnHearts={spawnHearts}
             playTypeTick={playTypeTick}
@@ -92,6 +95,7 @@ export default function SceneStage({
             active={true}
             requestNavLock={requestNavLock}
             setNavConsumer={setNavConsumer}
+            requestAudioFocus={requestAudioFocus}
             goTo={goTo}
             spawnHearts={spawnHearts}
             playTypeTick={playTypeTick}

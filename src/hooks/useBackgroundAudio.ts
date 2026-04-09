@@ -82,6 +82,57 @@ export function useBackgroundAudio(options: UseBackgroundAudioOptions) {
     }))
   }, [])
 
+  const pause = useCallback(() => {
+    const el = elRef.current
+    if (el) el.pause()
+    setState((prev) => ({
+      ...prev,
+      status: prev.status === 'playing' ? 'paused' : prev.status,
+      errorMessage: null,
+    }))
+  }, [])
+
+  const resume = useCallback(async () => {
+    if (!enabled) return
+    if (inFlightRef.current) return
+    const el = elRef.current
+    if (!el) return
+
+    inFlightRef.current = true
+    try {
+      el.volume = volume
+      el.preload = 'auto'
+
+      setState((prev) => ({
+        ...prev,
+        status: 'playing',
+        startedAtMs: prev.startedAtMs ?? performance.now(),
+        errorMessage: null,
+      }))
+
+      await el.play()
+    } catch (error) {
+      if (isAutoplayBlocked(error)) {
+        setState((prev) => ({
+          ...prev,
+          status: 'blocked',
+          errorMessage: null,
+        }))
+        return
+      }
+
+      const name = getErrorName(error)
+      const message = getErrorMessage(error)
+      setState((prev) => ({
+        ...prev,
+        status: name === 'AbortError' ? 'paused' : 'error',
+        errorMessage: message || name || 'Audio error',
+      }))
+    } finally {
+      inFlightRef.current = false
+    }
+  }, [enabled, volume])
+
   const playFromStart = useCallback(async () => {
     if (!enabled) return
     if (inFlightRef.current) return
@@ -94,6 +145,7 @@ export function useBackgroundAudio(options: UseBackgroundAudioOptions) {
       el.volume = volume
       el.preload = 'auto'
       try {
+        el.pause()
         el.currentTime = 0
       } catch {}
 
@@ -138,6 +190,14 @@ export function useBackgroundAudio(options: UseBackgroundAudioOptions) {
     },
     [volume],
   )
+
+  useEffect(() => {
+    return () => {
+      const el = elRef.current
+      if (!el) return
+      el.pause()
+    }
+  }, [])
 
   useEffect(() => {
     const el = elRef.current
@@ -239,6 +299,5 @@ export function useBackgroundAudio(options: UseBackgroundAudioOptions) {
     }
   }, [enabled, playFromStart, state.status])
 
-  return { audioRef: setAudioRef, state, playFromStart, stop }
+  return { audioRef: setAudioRef, state, playFromStart, resume, pause, stop }
 }
-

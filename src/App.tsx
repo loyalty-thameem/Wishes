@@ -61,16 +61,56 @@ function App() {
   )
   const { playTypeTick, playNavigate, playTap } = useSfx(sfxOn)
 
-  const { audioRef, state: bgAudio, playFromStart, stop } = useBackgroundAudio({
+  const {
+    audioRef,
+    state: bgAudio,
+    playFromStart,
+    pause: pauseBg,
+    resume: resumeBg,
+    stop,
+  } = useBackgroundAudio({
     src: BACKGROUND_AUDIO_SRC,
     autoplay: true,
     volume: BACKGROUND_AUDIO_VOLUME,
   })
 
+  const userMutedRef = useRef(false)
+  const bgWasPlayingRef = useRef(false)
+  const bgPausedByFocusRef = useRef(false)
+  const audioFocusCountRef = useRef(0)
+
+  useEffect(() => {
+    bgWasPlayingRef.current = bgAudio.status === 'playing'
+  }, [bgAudio.status])
+
+  const requestAudioFocus = useCallback(
+    (focused: boolean) => {
+      if (focused) {
+        if (audioFocusCountRef.current === 0) {
+          bgPausedByFocusRef.current = false
+          if (bgWasPlayingRef.current && !userMutedRef.current) {
+            bgPausedByFocusRef.current = true
+            pauseBg()
+          }
+        }
+        audioFocusCountRef.current += 1
+        return
+      }
+
+      audioFocusCountRef.current = Math.max(0, audioFocusCountRef.current - 1)
+      if (audioFocusCountRef.current !== 0) return
+      if (!bgPausedByFocusRef.current) return
+      bgPausedByFocusRef.current = false
+      if (userMutedRef.current) return
+      void resumeBg()
+    },
+    [pauseBg, resumeBg],
+  )
+
   const backgroundThemes = useMemo(
     () => [
-      { bg0: '#05070c', bg1: '#070b14' },
       { bg0: '#070312', bg1: '#120823' },
+      { bg0: '#05070c', bg1: '#070b14' },
       { bg0: '#031115', bg1: '#062126' },
       { bg0: '#120308', bg1: '#2a0814' },
       { bg0: '#040f07', bg1: '#0a1c10' },
@@ -226,6 +266,7 @@ function App() {
       }}
     >
       <ParticlesBackground />
+      <div className="introFx" aria-hidden="true" />
       <HeartsOverlay hearts={hearts} />
       <audio ref={audioRef} src={BACKGROUND_AUDIO_SRC} preload="auto" />
 
@@ -239,6 +280,7 @@ function App() {
             onClick={() => {
               if (bgAudio.status === 'playing') stop()
               else void playFromStart()
+              userMutedRef.current = bgAudio.status === 'playing'
             }}
           >
             <svg
@@ -301,6 +343,7 @@ function App() {
         transitionMs={transitionMs}
         requestNavLock={requestNavLock}
         setNavConsumer={setNavConsumer}
+        requestAudioFocus={requestAudioFocus}
         goTo={goTo}
         spawnHearts={spawnHearts}
         playTypeTick={playTypeTick}
@@ -330,6 +373,56 @@ function App() {
                 strokeLinejoin="round"
                 fill="none"
               />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className={[
+              'audioBtn',
+              bgAudio.status === 'playing' ? 'isOn' : 'isOff',
+              bgAudio.status === 'blocked' ? 'isPulsing' : '',
+            ].join(' ')}
+            onClick={() => {
+              if (bgAudio.status === 'playing') stop()
+              else void playFromStart()
+              userMutedRef.current = bgAudio.status === 'playing'
+            }}
+            aria-label={bgAudio.status === 'playing' ? 'Pause audio' : 'Play audio'}
+            aria-pressed={bgAudio.status === 'playing'}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M11 5 7.2 8H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2.2L11 19V5Z"
+                fill="currentColor"
+                opacity="0.9"
+              />
+              {bgAudio.status === 'playing' ? (
+                <path
+                  d="M15.5 8.8c1.1 1.3 1.1 5.1 0 6.4M18 7c2 2.2 2 7.8 0 10"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                  opacity="0.85"
+                />
+              ) : (
+                <path
+                  d="M15 9 20 15"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                  opacity="0.85"
+                />
+              )}
             </svg>
           </button>
           <div className="dots" aria-label="Scene progress">

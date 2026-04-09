@@ -10,9 +10,16 @@ type VideoItem = {
 export default function SceneVideos({
   active,
   requestNavLock,
+  requestAudioFocus,
   setNavConsumer,
 }: SceneComponentProps) {
   const baseUrl = import.meta.env.BASE_URL
+  const mediaVersion = import.meta.env.VITE_MEDIA_VERSION as string | undefined
+  const withVersion = (url: string) => {
+    if (!mediaVersion) return url
+    const join = url.includes('?') ? '&' : '?'
+    return `${url}${join}v=${encodeURIComponent(mediaVersion)}`
+  }
   const fileName = (index: number) => `moment-${String(index + 1).padStart(2, '0')}.mp4`
 
   const ambience = useMemo(
@@ -31,21 +38,21 @@ export default function SceneVideos({
     () => [
       {
         title: 'Moment 01',
-        src: `${baseUrl}videos/moment-01.mp4`,
-        poster: `${baseUrl}videos/posters/moment-01.jpg`,
+        src: withVersion(`${baseUrl}videos/moment-01.mp4`),
+        poster: withVersion(`${baseUrl}videos/posters/moment-01.jpg`),
       },
       {
         title: 'Moment 02',
-        src: `${baseUrl}videos/moment-02.mp4`,
-        poster: `${baseUrl}videos/posters/moment-02.jpg`,
+        src: withVersion(`${baseUrl}videos/moment-02.mp4`),
+        poster: withVersion(`${baseUrl}videos/posters/moment-02.jpg`),
       },
       {
         title: 'Moment 03',
-        src: `${baseUrl}videos/moment-03.mp4`,
-        poster: `${baseUrl}videos/posters/moment-03.jpg`,
+        src: withVersion(`${baseUrl}videos/moment-03.mp4`),
+        poster: withVersion(`${baseUrl}videos/posters/moment-03.jpg`),
       },
     ],
-    [baseUrl],
+    [baseUrl, mediaVersion],
   )
   const count = videos.length
   const countLabel = `${count} ${count === 1 ? 'video' : 'videos'}`
@@ -66,18 +73,50 @@ export default function SceneVideos({
   }, [openIndex, requestNavLock])
 
   useEffect(() => {
+    const focused = openIndex !== null
+    if (focused) requestAudioFocus(true)
+    return () => {
+      if (focused) requestAudioFocus(false)
+    }
+  }, [openIndex, requestAudioFocus])
+
+  useEffect(() => {
     if (!active) return
     centerRef.current = 0
     setCenter(0)
+    setFailed({})
   }, [active])
 
   useEffect(() => {
     if (!active) return
     if (openIndex !== null) return
-    const el = previewRef.current
-    if (!el) return
-    el.muted = true
-    el.play().catch(() => {})
+
+    const playPreview = () => {
+      const el = previewRef.current
+      if (!el) return
+      el.muted = true
+      el.preload = 'auto'
+      el.play().catch(() => {})
+    }
+
+    playPreview()
+
+    const onGesture = () => {
+      if (openIndex !== null) return
+      playPreview()
+    }
+
+    window.addEventListener('pointerdown', onGesture, { passive: true })
+    window.addEventListener('touchstart', onGesture, { passive: true })
+    window.addEventListener('wheel', onGesture, { passive: true })
+    window.addEventListener('keydown', onGesture)
+
+    return () => {
+      window.removeEventListener('pointerdown', onGesture)
+      window.removeEventListener('touchstart', onGesture)
+      window.removeEventListener('wheel', onGesture)
+      window.removeEventListener('keydown', onGesture)
+    }
   }, [active, center, openIndex])
 
   useEffect(() => {
@@ -199,7 +238,7 @@ export default function SceneVideos({
                       muted
                       playsInline
                       loop
-                      preload="metadata"
+                      preload="auto"
                       autoPlay
                       onError={() => {
                         setFailed((prev) => ({ ...prev, [i]: true }))
@@ -223,6 +262,96 @@ export default function SceneVideos({
               </button>
             )
           })}
+        </div>
+
+        <div className="videoControls" role="navigation" aria-label="Videos">
+          <div className="hudCard videoHudCard">
+            <button
+              type="button"
+              className="navBtn"
+              onClick={() => {
+                if (openIndex !== null) return
+                setCenter((c) => {
+                  const next = Math.max(0, c - 1)
+                  centerRef.current = next
+                  return next
+                })
+              }}
+              disabled={openIndex !== null || center <= 0}
+              aria-label="Previous video"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M6 14.2 12 8.2l6 6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </button>
+
+            <div className="dots" aria-label="Video progress">
+              {videos.map((video, i) => (
+                <button
+                  key={video.src}
+                  className="dotBtn"
+                  type="button"
+                  onClick={() => {
+                    if (openIndex !== null) return
+                    centerRef.current = i
+                    setCenter(i)
+                  }}
+                  aria-label={`Go to video ${i + 1}`}
+                  aria-disabled={openIndex !== null ? 'true' : 'false'}
+                >
+                  <span
+                    className="dot"
+                    aria-current={i === center ? 'true' : 'false'}
+                  />
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="navBtn"
+              onClick={() => {
+                if (openIndex !== null) return
+                setCenter((c) => {
+                  const next = Math.min(videos.length - 1, c + 1)
+                  centerRef.current = next
+                  return next
+                })
+              }}
+              disabled={openIndex !== null || center >= videos.length - 1}
+              aria-label="Next video"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M6 9.8 12 15.8l6-6"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

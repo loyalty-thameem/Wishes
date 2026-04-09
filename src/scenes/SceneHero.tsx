@@ -3,7 +3,10 @@ import EmojiRiseBurst from '../components/EmojiRiseBurst'
 import HeroParticleText from '../components/HeroParticleText'
 import type { SceneComponentProps } from '../components/SceneStage'
 
-export default function SceneHero({ active }: SceneComponentProps) {
+export default function SceneHero({
+  active,
+  requestAudioFocus,
+}: SceneComponentProps) {
   const [started, setStarted] = useState(false)
   const [formed, setFormed] = useState(false)
   const [burstId, setBurstId] = useState(0)
@@ -13,6 +16,7 @@ export default function SceneHero({ active }: SceneComponentProps) {
   const midScheduledRef = useRef(false)
   const endScheduledRef = useRef(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const hasVoiceFocusRef = useRef(false)
 
   const clearTimers = () => {
     for (const t of timeoutsRef.current) window.clearTimeout(t)
@@ -28,22 +32,46 @@ export default function SceneHero({ active }: SceneComponentProps) {
     }
     audioRef.current = null
     window.speechSynthesis?.cancel()
+    if (hasVoiceFocusRef.current) {
+      hasVoiceFocusRef.current = false
+      requestAudioFocus(false)
+    }
   }
 
   const playAudio = async (src: string) => {
     try {
+      const current = audioRef.current
+      if (current) {
+        current.pause()
+        current.currentTime = 0
+      }
+
       const audio = new Audio(src)
       audioRef.current = audio
       audio.volume = 0.72
       audio.playbackRate = 0.92
       audio.preload = 'auto'
+
+      if (!hasVoiceFocusRef.current) {
+        hasVoiceFocusRef.current = true
+        requestAudioFocus(true)
+      }
+
       audio.onended = () => {
         if (audioRef.current === audio) audioRef.current = null
+        if (hasVoiceFocusRef.current) {
+          hasVoiceFocusRef.current = false
+          requestAudioFocus(false)
+        }
       }
       await audio.play()
       return true
     } catch {
       audioRef.current = null
+      if (hasVoiceFocusRef.current) {
+        hasVoiceFocusRef.current = false
+        requestAudioFocus(false)
+      }
       return false
     }
   }
@@ -57,6 +85,17 @@ export default function SceneHero({ active }: SceneComponentProps) {
     utter.rate = 0.72
     utter.pitch = 1.02
     utter.volume = 0.72
+    if (!hasVoiceFocusRef.current) {
+      hasVoiceFocusRef.current = true
+      requestAudioFocus(true)
+    }
+    const release = () => {
+      if (!hasVoiceFocusRef.current) return
+      hasVoiceFocusRef.current = false
+      requestAudioFocus(false)
+    }
+    utter.onend = release
+    utter.onerror = release
     synth.speak(utter)
     return true
   }
